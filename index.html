@@ -5,71 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>班级回声洞 - 毕业纪念</title>
     <link rel="stylesheet" href="style.css">
-    <!-- 引入 CryptoJS 库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 </head>
 <body>
-    <div class="time-container">
-        <div id="current-time"></div>
-    </div>
-    <div class="container">
-        <h1>回声洞</h1>
-        <h2>我们毕业啦！<span id="quote-count"></span></h2>
-        <div class="quote-container">
-            <p id="quote">ヾ(≧▽≦*)o努力加载中...</p>
+    <!-- 背景层（用于模糊效果） -->
+    <div class="background-layer"></div>
+
+    <!-- 左上角时间+音乐 -->
+    <div class="top-left-container">
+        <div class="time-container">
+            <div id="current-time"></div>
         </div>
-        <div class="controls">
-            <button id="generate-btn">再来一个</button>
-            <span id="countdown">15秒后自动更新</span>
-            <button id="link-btn">我要投稿</button>
+        <div class="music-container">
+            <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2599868807&auto=1&height=66"></iframe>
         </div>
     </div>
-    <div class="music-container">
-        <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2599868807&auto=1&height=66"></iframe>
-    </div>
+
+    <!-- 右上角设置按钮 -->
     <button id="settings-btn" class="settings-btn">⚙️</button>
-    <!-- 设置窗口 -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>网页说明</h3>
-            <p>这是一个用来纪念高中时光的静态网页，点击按钮或倒计时结束时会随机展示一段文字。本网页使用AI制作，可能质量并不高。</p>
-            <p>如果有建议或问题请发邮件到 imfhy1234@outlook.com 来反馈</p>
-            <h3>文字解密密钥设置</h3>
-            <p>需要解密密钥才可以正常显示文字哦~</p>
-            <input type="text" id="settings-key" placeholder="在这里输入解密密钥" value="fhy2025">
-            <h3>投稿按钮突出显示</h3>
-            <input type="checkbox" id="color-toggle" checked>
-            <label for="color-toggle">启用彩色闪动效果</label>
-            <div class="jump-buttons">
-                <button id="jump-btn1">在GitHub上查看</button>
-                <button id="jump-btn2">查看开发日志</button>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 图片轮播区域（上方） -->
+        <div class="gallery-section">
+            <div class="gallery-header">
+                <h1>回声洞</h1>
+                <h2>我们毕业啦！<span id="quote-count"></span><span id="photo-count"></span></h2>
+            </div>
+            <div class="gallery-main">
+                <button class="gallery-nav-btn gallery-prev" id="gallery-prev">‹</button>
+                <div class="gallery-viewer">
+                    <div class="slides-wrapper effect-random" id="slidesWrapper"></div>
+                    <!-- 图片切换进度条 -->
+                    <div class="progress-bar-container" id="gallery-progress-container">
+                        <div class="progress-bar" id="gallery-progress-bar"></div>
+                    </div>
+                </div>
+                <button class="gallery-nav-btn gallery-next" id="gallery-next">›</button>
+            </div>
+            <div class="gallery-indicators" id="indicators"></div>
+        </div>
+
+        <!-- 句子显示区域（下方） -->
+        <div class="quote-section">
+            <div class="quote-container">
+                <p id="quote">ヾ(≧▽≦*)o努力加载中...</p>
+            </div>
+            <div class="controls">
+                <button id="generate-btn">再来一个</button>
+                <!-- 句子进度条容器 -->
+                <div class="progress-container" id="quote-progress-container">
+                    <div class="progress-bar" id="quote-progress-bar"></div>
+                    <span id="countdown">15</span>
+                </div>
+                <!-- 独立的秒数显示区域 -->
+                <span id="countdown-number" class="countdown-number">15</span>
+                <button id="link-btn">我要投稿</button>
             </div>
         </div>
     </div>
-    <!-- 投稿确认弹窗 -->
-    <div id="confirm-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-confirm">&times;</span>
-            <h3>是否前往第三方页面进行投稿？</h3>
-            <p>投稿内容收集由 问卷网 提供支持</p>
-            <h4>注意事项</h4>
-            <p>1.经过审核后，才会在网页上公开展示。</p>
-            <p>2.请注意您的言辞，确保您的投稿合理。</p>
-            <p>3.请不要在投稿中包含个人及他人的敏感信息。</p>
-            <p>4.如果投稿内容有问题请发邮件到 imfhy1234@outlook.com 来反馈。</p>
-            <h3> </h3>
-            <button id="confirm-yes">好耶，我要投稿！</button>
-            <button id="confirm-no">嗯...算了吧</button>
+
+    <!-- 设置窗口 -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-wrapper">
+            <span class="close">&times;</span>
+            <div class="modal-content">
+                <h3>网页说明</h3>
+                <p>这是一个用来纪念高中时光的静态网页，点击按钮或倒计时结束时会随机展示一段文字。本网页使用AI制作，可能质量并不高。</p>
+                <p>如果有建议或问题请发邮件到 imfhy1234@outlook.com 来反馈</p>
+                
+                <h3>文字解密密钥设置</h3>
+                <p>需要解密密钥才可以正常显示文字哦~</p>
+                <input type="text" id="settings-key" placeholder="在这里输入解密密钥" value="fhy2025">
+                
+                <h3>图片切换动画</h3>
+                <select id="gallery-effect">
+                    <option value="fade">淡入淡出</option>
+                    <option value="slide">滑动</option>
+                    <option value="zoom">缩放</option>
+                    <option value="rotate">旋转缩放</option>
+                    <option value="flip">翻页</option>
+                    <option value="random" selected>随机效果</option>
+                </select>
+                
+                <h3>背景模糊强度</h3>
+                <input type="range" id="blur-slider" min="0" max="20" value="5">
+                <span id="blur-value">5px</span>
+                
+                <h3>图片切换倒计时提示</h3>
+                <input type="checkbox" id="gallery-progress-toggle" checked>
+                <label for="gallery-progress-toggle">显示进度条</label>
+                
+                <h3>句子更新倒计时提示</h3>
+                <select id="countdown-display-type">
+                    <option value="progress">进度条</option>
+                    <option value="number">秒数</option>
+                </select>
+                
+                <h3>投稿按钮突出显示</h3>
+                <input type="checkbox" id="color-toggle" checked>
+                <label for="color-toggle">启用彩色闪动效果</label>
+                
+                <div class="jump-buttons">
+                    <button id="jump-btn1">在GitHub上查看</button>
+                    <button id="jump-btn2">查看开发日志</button>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- 版权及备案信息 -->
+
+    <!-- 投稿确认弹窗 -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-wrapper">
+            <span class="close-confirm">&times;</span>
+            <div class="modal-content">
+                <h3>是否前往第三方页面进行投稿？</h3>
+                <p>投稿内容收集由 问卷网 提供支持</p>
+                <h4>注意事项</h4>
+                <p>1.经过审核后，才会在网页上公开展示。</p>
+                <p>2.请注意您的言辞，确保您的投稿合理。</p>
+                <p>3.请不要在投稿中包含个人及他人的敏感信息。</p>
+                <p>4.如果投稿内容有问题请发邮件到 imfhy1234@outlook.com 来反馈。</p>
+                <button id="confirm-yes">好耶，我要投稿！</button>
+                <button id="confirm-no">嗯...算了吧</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 版权信息 -->
     <div class="footer">
         <p class="copyright">© Fhy2025 班级回声洞</p>
         <a href="https://icp.gov.moe/?keyword=20259981" target="_blank" class="beian">萌ICP备20259981号</a>
-        <p class="copyright">version 1.2.2 2025-5-28</p>
+        <p class="copyright">version 1.3.0 2025-11-30</p>
         <p class="copyright">语句更新时间 2025-5-28</p>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>

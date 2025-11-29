@@ -1,94 +1,327 @@
-/* v1.2.2 */
+/* v1.2.5 - 修复设置页面滚动、进度条显示和关闭按钮位置 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-image: url('https://i.postimg.cc/rFh8WJJK/IMG-8694.jpg'); /* 图床链接 */
+/* 背景层 - 只模糊这个层 */
+.background-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://i.postimg.cc/y8tYqrN5/IMG_1001.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    background-color: #00b049; /* 备用背景颜色 */
-    position: relative; /* 添加相对定位 */
+    background-color: #00b049;
+    z-index: -1;
 }
 
-.time-container {
+body {
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 左上角时间+音乐（修复对齐和背景） */
+.top-left-container {
     position: absolute;
     top: 20px;
     left: 20px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.time-container {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: inline-block;
+    width: 90px; /* 固定宽度 */
+    text-align: center; /* 文字居中 */
+}
+
+#current-time {
     color: white;
     font-size: 18px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    border-radius: 5px;
+    font-weight: bold;
+    line-height: 1;
+    white-space: nowrap;
 }
 
-.music-container {
+.music-container iframe {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.music-container iframe:hover {
+    opacity: 1;
+}
+
+/* 右上角设置按钮 */
+.settings-btn {
     position: absolute;
-    bottom: 20px;
-    left: 20px;
-}
-
-.container {
-    background-color: rgba(255, 255, 255, 0.9); /* 半透明背景 */
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 100%;
-    max-width: 600px;
-    text-align: center;
-}
-
-h1 {
-    color: #333;
-    margin-bottom: 10px;
-}
-
-h2 {
-    color: #666;
-    font-size: 18px;
-    margin-bottom: 20px;
-    font-weight: normal;
-}
-
-.quote-container {
-    margin: 30px 0;
-    min-height: 100px;
+    top: 20px;
+    right: 20px;
+    background-color: #6fd8d3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 100;
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.settings-btn:hover {
+    background-color: #7cebe6;
+}
+
+/* 主容器 - 上下布局，消除滚动 */
+.main-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1100px;
+    height: 100vh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 80px 20px 20px;
+    gap: 15px;
+}
+
+/* 图片轮播区域（上方） */
+.gallery-section {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.gallery-header {
+    text-align: center;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.gallery-header h1 {
+    color: #333;
+    margin-bottom: 5px;
+    font-size: 1.8rem;
+}
+
+.gallery-header h2 {
+    color: #666;
+    font-size: 1rem;
+    font-weight: normal;
+}
+
+#photo-count {
+    margin-left: 5px;
+    color: #767676;
+}
+
+.gallery-main {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+
+.gallery-viewer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* 图片进度条容器 */
+.progress-bar-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 5;
+}
+
+/* 图片进度条 - 统一使用主题色 */
+#gallery-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #6fd8d3; /* 使用主题色 */
+    transition: width 4s linear;
+}
+
+.gallery-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    background: rgba(111, 216, 211, 0.9);
+    border: none;
+    border-radius: 50%;
+    font-size: 22px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-nav-btn:hover {
+    background: rgba(124, 235, 230, 0.9);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-prev {
+    left: 10px;
+}
+
+.gallery-next {
+    right: 10px;
+}
+
+/* 修复：指示器容器支持滚动并保持居中 */
+.gallery-indicators {
+    display: flex;
+    justify-content: center; /* 保持居中 */
+    gap: 8px;
+    margin-top: 10px;
+    flex-shrink: 0;
+    overflow-x: auto; /* 允许水平滚动 */
+    padding: 5px 0;
+    scrollbar-width: none; /* 隐藏滚动条 - Firefox */
+    -ms-overflow-style: none; /* 隐藏滚动条 - IE/Edge */
+}
+
+/* 隐藏滚动条 - Chrome/Safari */
+.gallery-indicators::-webkit-scrollbar {
+    display: none;
+}
+
+/* 句子显示区域（下方） - 修复2：固定高度防止闪动 */
+.quote-section {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 修改：允许滚动和正确高度 */
+.quote-container {
+    margin: 5px 0;
+    max-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+}
+
+/* 修改：确保动画期间也能滚动 */
 #quote {
-    font-size: 18px;
-    color: #555;
     line-height: 1.6;
     transition: all 0.3s ease;
+    text-align: center;
+    max-width: 100%;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    width: 100%;
+}
+
+/* 修改：打字动画期间防止滚动，动画完成后允许滚动 */
+.quote-container.typing {
+    overflow-y: hidden;
 }
 
 .controls {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 15px;
+    margin-top: 10px;
 }
 
+/* 句子进度条容器 */
+.progress-container {
+    position: relative;
+    width: 100px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 句子进度条 - 统一使用主题色 */
+#quote-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: #6fd8d3; /* 使用主题色 */
+    transition: width 1s linear;
+}
+
+/* 倒计时文字 */
+#countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 独立的秒数显示 */
+.countdown-number {
+    font-size: 14px;
+    color: #ff7676;
+    min-width: 30px;
+    text-align: center;
+    display: none; /* 默认隐藏 */
+}
+
+/* 修改：确保倒计时两侧间距相同 */
 #generate-btn, #link-btn {
     background-color: #6fd8d3;
     color: rgb(121, 121, 121);
     border: none;
-    padding: 12px 24px;
-    font-size: 16px;
+    padding: 10px 20px;
+    font-size: 15px;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -98,49 +331,22 @@ h2 {
     background-color: #7cebe6;
 }
 
-#countdown {
-    font-size: 14px;
-    color: #ff7676;
-}
-
-/* 彩色闪动效果 */
 @keyframes colorPulse {
-    0% { background-color: #87CEEB; } /* 天蓝色 */
-    25% { background-color: #90EE90; } /* 浅绿色 */
-    50% { background-color: #D8BFD8; } /* 浅紫色 */
-    75% { background-color: #FFB6C1; } /* 浅粉色 */
-    100% { background-color: #87CEEB; } /* 天蓝色 */
+    0% { background-color: #87CEEB; }
+    25% { background-color: #90EE90; }
+    50% { background-color: #D8BFD8; }
+    75% { background-color: #FFB6C1; }
+    100% { background-color: #87CEEB; }
 }
 
 .color-pulse {
     animation: colorPulse 4s infinite;
 }
 
-/* 设置按钮样式 */
-.settings-btn {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: #6fd8d3;
-    color: white;
-    border: none;
-    padding: 1px 1px;
-    font-size: 20px;
-    border-radius: 100px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    z-index: 100;
-}
-
-.settings-btn:hover {
-    background-color: #7cebe6;
-}
-
-/* 设置窗口样式 */
 .modal {
-    display: none; /* 默认隐藏设置窗口 */
+    display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
@@ -148,124 +354,328 @@ h2 {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px;
+/* 修复：设置窗口包装器，用于放置关闭按钮 */
+.modal-wrapper {
+    position: relative;
+    margin: 5% auto;
     width: 80%;
     max-width: 500px;
-    text-align: center;
-    position: relative; /* 添加相对定位 */
 }
 
+/* 修复：设置窗口支持滚动，圆角不被滚动条覆盖 */
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border-radius: 10px;
+    max-height: 70vh; /* 限制最大高度 */
+    overflow-y: auto; /* 添加垂直滚动 */
+    text-align: center;
+    /* 自定义滚动条样式 */
+    scrollbar-width: thin;
+    scrollbar-color: #6fd8d3 rgba(0, 0, 0, 0.1);
+}
+
+/* 自定义滚动条 - Chrome/Safari */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 0 10px 10px 0;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #6fd8d3;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #5bc8c3;
+}
+
+/* 修复：关闭按钮放在模态框外部 */
 .close, .close-confirm {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    color: white;
+    font-size: 32px;
     font-weight: bold;
     cursor: pointer;
-    position: absolute; /* 绝对定位 */
-    top: 10px; /* 距离顶部的间距 */
-    right: 15px; /* 距离右侧的间距 */
+    position: absolute;
+    top: -40px;
+    right: -10px;
+    background: rgba(0, 0, 0, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2001;
+    transition: all 0.3s ease;
 }
 
 .close:hover, .close-confirm:hover {
-    color: black;
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
 }
 
-.jump-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-#jump-btn1, #jump-btn2 {
-    background-color: #6fd8d3;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#jump-btn1:hover, #jump-btn2:hover {
-    background-color: #7cebe6;
-}
-
-/* 投稿确认对话框样式 */
-#confirm-modal {
-    z-index: 2; /* 确保确认对话框在设置窗口之上 */
-}
-
-#confirm-modal .modal-content h3 {
-    margin-bottom: 20px;
+#settings-modal .modal-content h3 {
+    margin: 15px 0 10px;
     color: #333;
 }
 
-#confirm-yes, #confirm-no {
-    background-color: #6fd8d3;
-    color: rgb(0, 0, 0);
-    border: none;
-    padding: 10px 20px;
+#settings-modal .modal-content p {
+    margin: 10px 0;
     font-size: 14px;
+    color: #666;
+}
+
+#settings-key, #gallery-effect, #countdown-display-type {
+    width: 100%;
+    padding: 8px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
     border-radius: 5px;
+}
+
+#blur-slider {
+    width: 70%;
+    vertical-align: middle;
+}
+
+#blur-value {
+    margin-left: 10px;
+    font-weight: bold;
+    color: #6fd8d3;
+}
+
+/* 统一按钮样式 */
+#jump-btn1, #jump-btn2, #confirm-yes, #confirm-no {
+    background-color: #6fd8d3 !important;
+    color: rgb(121, 121, 121) !important;
+    border: none;
+    padding: 10px 20px !important;
+    font-size: 15px !important;
+    border-radius: 5px !important;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 0 5px;
+    transition: background-color 0.3s ease !important;
+}
+
+#jump-btn1:hover, #jump-btn2:hover, #confirm-yes:hover, #confirm-no:hover {
+    background-color: #7cebe6 !important;
 }
 
 #confirm-yes {
-    background-color: #7ce37c; /* 绿色按钮 */
-}
-
-#confirm-yes:hover {
-    background-color: #98FB98;
+    background-color: #7ce37c !important;
 }
 
 #confirm-no {
-    background-color: #FF6347; /* 红色按钮 */
+    background-color: #FF6347 !important;
 }
 
-#confirm-no:hover {
-    background-color: #F08080;
-}
-
-/* 版权及备案信息样式 */
 .footer {
     position: absolute;
-    bottom: 20px;
+    bottom: 10px;
     right: 20px;
     text-align: right;
+    z-index: 50;
 }
 
 .copyright {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.3); /* 初始透明度为30% */
+    color: rgba(255, 255, 255, 0.4);
     transition: color 0.3s ease;
 }
 
 .copyright:hover {
-    color: rgba(255, 255, 255, 1); /* 鼠标悬停时透明度为100% */
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* 备案号链接样式 */
 .beian {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.3); /* 初始透明度为30% */
+    color: rgba(255, 255, 255, 0.4);
     transition: color 0.3s ease;
-    text-decoration: none; /* 去掉下划线 */
+    text-decoration: none;
 }
 
 .beian:hover {
-    color: rgba(255, 255, 255, 1); /* 鼠标悬停时透明度为100% */
+    color: rgba(255, 255, 255, 0.8);
 }
 
-/* 句子数量显示样式 */
-#quote-count {
-    font-size: 14px;
-    color: #767676;
-    margin-left: 5px;
+/* 图片轮播核心样式 */
+.slides-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.8s ease;
+    transform-origin: center;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+/* 图片容器样式 - 新增 */
+.image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.effect-fade .slide {
+    opacity: 0;
+}
+
+.effect-fade .slide.active {
+    opacity: 1;
+}
+
+.effect-slide .slide {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.effect-slide .slide.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.effect-slide .slide.prev {
+    transform: translateX(-100%);
+}
+
+.effect-zoom .slide {
+    transform: scale(0.7);
+    opacity: 0;
+}
+
+.effect-zoom .slide.active {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.effect-rotate .slide {
+    transform: scale(0.5) rotate(180deg);
+    opacity: 0;
+}
+
+.effect-rotate .slide.active {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+}
+
+.effect-flip .slide {
+    transform: rotateY(90deg);
+    opacity: 0;
+}
+
+.effect-flip .slide.active {
+    transform: rotateY(0);
+    opacity: 1;
+}
+
+.slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.slide .image-placeholder {
+    width: 300px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(111, 216, 211, 0.5);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* 防止指示器被压缩 */
+}
+
+.indicator.active {
+    background: #6fd8d3;
+    transform: scale(1.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .gallery-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .gallery-header h2 {
+        font-size: 0.9rem;
+    }
+    
+    .gallery-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    .controls {
+        gap: 10px;
+    }
+    
+    #generate-btn, #link-btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .time-container {
+        width: 85px; /* 移动端稍小一点 */
+    }
+    
+    .progress-container {
+        width: 80px;
+    }
+    
+    /* 移动端设置窗口调整 */
+    .modal-wrapper {
+        width: 90%;
+        margin: 10% auto;
+    }
+    
+    .modal-content {
+        padding: 15px;
+    }
+    
+    /* 移动端关闭按钮位置调整 */
+    .close, .close-confirm {
+        top: -35px;
+        right: 0;
+        width: 35px;
+        height: 35px;
+        font-size: 28px;
+    }
 }
